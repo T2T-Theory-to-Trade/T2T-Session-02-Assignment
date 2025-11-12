@@ -1,583 +1,665 @@
-# Behavioral Design Patterns in Java
-## Technical Documentation
+Behavioral Design Patterns in Java
+Technical Documentation
+📋 Table of Contents
+Project Overview
+Architecture
+Design Patterns Implemented
+Command Pattern
+Observer Pattern
+Strategy Pattern
+Getting Started
+Project Structure
+Code Implementation Details
+Running the Application
+Extension Guidelines
+Best Practices
+🎯 Project Overview
+This project is a comprehensive demonstration of three fundamental behavioral design patterns in Java. Behavioral patterns focus on communication between objects, defining how they interact and distribute responsibilities while maintaining loose coupling and high cohesion.
 
----
-
-## 📋 Table of Contents
-
-1. [Project Overview](#project-overview)
-2. [Architecture](#architecture)
-3. [Design Patterns Implemented](#design-patterns-implemented)
-   - [Command Pattern](#command-pattern)
-   - [Observer Pattern](#observer-pattern)
-   - [Strategy Pattern](#strategy-pattern)
-4. [Getting Started](#getting-started)
-5. [Project Structure](#project-structure)
-6. [Usage Examples](#usage-examples)
-7. [Extension Guidelines](#extension-guidelines)
-8. [Best Practices](#best-practices)
-
----
-
-## 🎯 Project Overview
-
-This project is a comprehensive demonstration of three fundamental **behavioral design patterns** in Java. Behavioral patterns focus on communication between objects, defining how they interact and distribute responsibilities while maintaining loose coupling and high cohesion.
-
-### Purpose
-
+Purpose
 The project serves as both an educational resource and a practical reference implementation for:
-- Understanding behavioral design patterns through working code
-- Learning how to apply SOLID principles in real-world scenarios
-- Building flexible, maintainable, and extensible Java applications
 
-### Key Features
-
-- **Modular Architecture**: Each pattern is isolated in its own package
-- **Console Execution**: Run each pattern independently for testing and demonstration
-- **Real-World Examples**: Practical implementations using familiar scenarios
-- **Extensibility**: Designed for easy addition of new behaviors and features
-
----
-
-## 🏗️ Architecture
-
+Understanding behavioral design patterns through working code
+Learning how to apply SOLID principles in real-world scenarios
+Building flexible, maintainable, and extensible Java applications
+Key Features
+Modular Architecture: Each pattern is isolated in its own package
+Console Execution: Run each pattern independently via demo classes
+Real-World Examples: Practical implementations using familiar scenarios
+Extensibility: Designed for easy addition of new behaviors and features
+Working Demos: Each pattern includes a runnable demo with console output
+🏗️ Architecture
 The project follows a clean, modular structure with clear separation of concerns:
 
-```
 src/
 ├── CommandPattern/
-│   ├── Command.java (interface)
-│   ├── ConcreteCommands/
-│   ├── Receivers/
-│   ├── Invoker/
-│   └── Main.java
+│   ├── Command.java               # Command interface
+│   ├── ConcreteCommands.java      # All concrete command implementations
+│   ├── Receiver.java              # Light and Fan receivers
+│   └── CommandDemo.java           # Demo with RemoteControl invoker
+│
 ├── ObserverPattern/
-│   ├── Observer.java (interface)
-│   ├── Subject.java (interface)
-│   ├── ConcreteObservers/
-│   ├── ConcreteSubject/
-│   └── Main.java
+│   ├── Observer.java              # Observer interface
+│   ├── Subject.java               # Subject interface
+│   ├── DisplayDevice.java         # Concrete observer
+│   ├── WeatherStation.java        # Concrete subject
+│   └── ObserverDemo.java          # Demo with live updates
+│
 └── StrategyPattern/
-    ├── Strategy.java (interface)
-    ├── ConcreteStrategies/
-    ├── Context/
-    └── Main.java
-```
-
-### Design Principles Applied
-
-- **Open/Closed Principle**: Open for extension, closed for modification
-- **Dependency Inversion**: Depend on abstractions, not concrete implementations
-- **Single Responsibility**: Each class has one reason to change
-- **Interface Segregation**: Client-specific interfaces over general-purpose ones
-
----
-
-## 🎨 Design Patterns Implemented
-
-### Command Pattern
-
-#### 🎯 Intent
-
+    ├── PaymentStrategy.java       # Strategy interface
+    ├── ConcreteStratergies.java   # All payment strategy implementations
+    ├── ShoppingCart.java          # Context with Product class
+    └── StratergyDemo.java         # Demo with multiple payments
+Design Principles Applied
+Open/Closed Principle: Open for extension, closed for modification
+Dependency Inversion: Depend on abstractions, not concrete implementations
+Single Responsibility: Each class has one reason to change
+Interface Segregation: Client-specific interfaces over general-purpose ones
+🎨 Design Patterns Implemented
+Command Pattern
+🎯 Intent
 Encapsulate a request as an object, allowing you to parameterize clients with different requests, queue or log them, and support undoable operations.
 
-#### Problem It Solves
+Problem It Solves
+Decouples the object that invokes an operation from the one that knows how to perform it
+Enables request queuing, logging, and undo/redo functionality
+Supports macro commands (composite commands)
+🧩 Components in Your Implementation
+Component	Class	Responsibility
+Command Interface	Command.java	Declares execute() and undo() methods
+Concrete Commands	LightOnCommand, LightOffCommand, FanOnCommand, FanOffCommand	Implement commands for specific actions
+Receivers	Light, Fan	Perform actual business logic
+Invoker	RemoteControl	Triggers commands without knowing details
+Client	CommandDemo	Creates and configures command objects
+📝 Code Structure
+Command Interface:
 
-- Decouples the object that invokes an operation from the one that knows how to perform it
-- Enables request queuing, logging, and undo/redo functionality
-- Supports macro commands (composite commands)
+java
+public interface Command {
+    void execute();
+    void undo();
+}
+Concrete Command Example:
 
-#### 🧩 Components
+java
+class LightOnCommand implements Command {
+    private Light light;
 
-| Component | Responsibility | Example |
-|-----------|---------------|---------|
-| **Command** | Declares the execute() and undo() interface | `Command.java` |
-| **ConcreteCommand** | Implements command by binding to a receiver | `LightOnCommand`, `FanOffCommand` |
-| **Receiver** | Performs the actual business logic | `Light`, `Fan` |
-| **Invoker** | Triggers commands without knowing details | `RemoteControl` |
-| **Client** | Creates and configures command objects | `Main.java` |
+    public LightOnCommand(Light light) {
+        this.light = light;
+    }
 
-#### ⚙️ Execution Flow
+    @Override
+    public void execute() {
+        light.turnOn();
+    }
 
-1. **Create Receivers**: Instantiate the objects that perform actual work
-   ```java
-   Light livingRoomLight = new Light("Living Room");
-   Fan ceilingFan = new Fan("Bedroom");
-   ```
+    @Override
+    public void undo() {
+        light.turnOff();
+    }
+}
+Receiver:
 
-2. **Wrap in Commands**: Encapsulate receiver actions in command objects
-   ```java
-   Command lightOn = new LightOnCommand(livingRoomLight);
-   Command fanOff = new FanOffCommand(ceilingFan);
-   ```
+java
+class Light {
+    void turnOn() {
+        System.out.println("Light Is ON!");
+    }
+    void turnOff() {
+        System.out.println("Light is OFF");
+    }
+}
+Invoker:
 
-3. **Configure Invoker**: Set commands in the remote control
-   ```java
-   RemoteControl remote = new RemoteControl();
-   remote.setCommand(lightOn);
-   ```
+java
+class RemoteControl {
+    private Command command;
 
-4. **Execute and Undo**: Trigger actions and revert them
-   ```java
-   remote.pressButton();  // Executes command
-   remote.pressUndo();    // Reverts last action
-   ```
+    public void setCommand(Command command) {
+        this.command = command;
+    }
+    
+    public void pressButton() {
+        command.execute();
+    }
 
-#### 📊 Class Diagram
+    public void pressUndo() {
+        command.undo();
+    }
+}
+⚙️ Execution Flow
+Your implementation follows this flow:
 
-```
-┌─────────────┐
-│   Client    │
-└──────┬──────┘
-       │ creates
-       ↓
-┌─────────────┐      ┌──────────────┐
-│   Invoker   │─────→│   Command    │
-│             │      │  «interface» │
-└─────────────┘      └──────┬───────┘
-                            △
-                            │ implements
-                     ┌──────┴───────┐
-                     │              │
-            ┌────────┴────────┐ ┌───┴──────────┐
-            │ LightOnCommand  │ │ FanOffCommand│
-            └────────┬────────┘ └───┬──────────┘
-                     │              │
-                     └──────┬───────┘
-                            │ uses
-                            ↓
-                     ┌─────────────┐
-                     │  Receiver   │
-                     │ (Light/Fan) │
-                     └─────────────┘
-```
-
-#### 💡 Use Cases
-
-- **Remote Controls**: Home automation systems
-- **Transaction Systems**: Banking operations with rollback
-- **GUI Actions**: Menu items, buttons with undo/redo
-- **Task Scheduling**: Job queues and batch processing
-- **Macro Recording**: Recording and replaying user actions
-
-#### 🔧 Extension Ideas
-
-- Implement a **Command History** with multi-level undo/redo stack
-- Create **MacroCommand** to execute multiple commands in sequence
-- Add **command logging** for audit trails
-- Implement **command serialization** for persistence
-- Create **parameterized commands** with runtime arguments
-
----
-
-### Observer Pattern
-
-#### 🎯 Intent
-
+Create Receivers
+java
+Light roomlight = new Light();
+Fan roomFan = new Fan();
+Wrap in Commands
+java
+Command lightOn = new LightOnCommand(roomlight);
+Command lightOff = new LightOffCommand(roomlight);
+Command fanOn = new FanOnCommand(roomFan);
+Command fanOff = new FanOffCommand(roomFan);
+Configure Invoker
+java
+RemoteControl remote = new RemoteControl();
+remote.setCommand(lightOn);
+Execute and Undo
+java
+remote.pressButton();  // Executes: "Light Is ON!"
+remote.pressUndo();    // Undoes: "Light is OFF"
+📊 Class Diagram
+                    ┌─────────────────┐
+                    │  CommandDemo    │
+                    │    (Client)     │
+                    └────────┬────────┘
+                             │ creates
+                             ↓
+┌──────────────┐      ┌─────────────┐
+│RemoteControl │─────→│   Command   │
+│  (Invoker)   │      │ «interface» │
+│              │      └──────┬──────┘
+│- command     │             △
+│+ setCommand()│             │ implements
+│+ pressButton │        ┌────┴────┬─────────┬─────────┐
+│+ pressUndo() │        │         │         │         │
+└──────────────┘   ┌────┴────┐ ┌──┴───┐ ┌──┴───┐ ┌───┴────┐
+                   │LightOn  │ │Light │ │FanOn │ │FanOff  │
+                   │Command  │ │Off   │ │Cmd   │ │Command │
+                   └────┬────┘ └──┬───┘ └──┬───┘ └───┬────┘
+                        │         │        │         │
+                        └─────────┴────────┴─────────┘
+                                  │ uses
+                                  ↓
+                        ┌─────────────────┐
+                        │ Light  │  Fan   │
+                        │ (Receivers)     │
+                        └─────────────────┘
+💡 Features Implemented
+✅ Four concrete commands (LightOn, LightOff, FanOn, FanOff)
+✅ Two receivers (Light, Fan)
+✅ Single remote control invoker
+✅ Undo functionality
+🔧 Extension Ideas
+Add command history stack for multi-level undo/redo
+Create MacroCommand to execute multiple commands in sequence
+Add more receivers (AirConditioner, TV, Stereo)
+Implement parameterized commands (e.g., FanSpeedCommand with speed levels)
+Add command logging for debugging and audit trails
+Observer Pattern
+🎯 Intent
 Define a one-to-many dependency between objects so that when one object (the Subject) changes state, all its dependents (Observers) are automatically notified and updated.
 
-#### Problem It Solves
+Problem It Solves
+Maintains consistency between related objects without tight coupling
+Implements event-driven architectures
+Enables broadcast communication from one to many
+🧩 Components in Your Implementation
+Component	Class	Responsibility
+Subject Interface	Subject.java	Declares observer management methods
+Observer Interface	Observer.java	Declares update method
+Concrete Subject	WeatherStation	Maintains state and notifies observers
+Concrete Observer	DisplayDevice	Subscribes and displays weather updates
+📝 Code Structure
+Observer Interface:
 
-- Maintains consistency between related objects without tight coupling
-- Implements event-driven architectures
-- Enables broadcast communication from one to many
+java
+public interface Observer {
+    void update(float temperature, float humidity);
+}
+Subject Interface:
 
-#### 🧩 Components
+java
+public interface Subject {
+    void addObserver(Observer o);
+    void removeObserver(Observer o);
+    void notifyObservers();
+}
+Concrete Subject:
 
-| Component | Responsibility | Example |
-|-----------|---------------|---------|
-| **Subject** | Manages observers and triggers notifications | `Subject.java` interface |
-| **Observer** | Defines update interface for notifications | `Observer.java` interface |
-| **ConcreteSubject** | Maintains state and notifies on changes | `WeatherStation` |
-| **ConcreteObserver** | Subscribes and reacts to updates | `DisplayDevice` |
+java
+public class WeatherStation implements Subject {
+    private List<Observer> observers = new ArrayList<>();
+    private float temperature;
+    private float humidity;
 
-#### ⚙️ Execution Flow
+    public void setWeatherData(float temperature, float humidity) {
+        this.temperature = temperature;
+        this.humidity = humidity;
+        System.out.println("WeatherStation: Temperature = " + Math.round(temperature) + 
+                          "°C  | Humidity: " + Math.round(humidity) + "%");
+        notifyObservers();
+    }
 
-1. **Create Subject**: Initialize the observable object
-   ```java
-   WeatherStation station = new WeatherStation();
-   ```
+    @Override
+    public void notifyObservers() {
+        for (Observer o : observers) {
+            o.update(temperature, humidity);
+        }
+    }
+    
+    // addObserver and removeObserver implementations...
+}
+Concrete Observer:
 
-2. **Register Observers**: Subscribe display devices
-   ```java
-   DisplayDevice phoneDisplay = new DisplayDevice("Phone");
-   DisplayDevice tvDisplay = new DisplayDevice("TV");
-   station.addObserver(phoneDisplay);
-   station.addObserver(tvDisplay);
-   ```
+java
+public class DisplayDevice implements Observer {
+    private String name;
 
-3. **Update State**: Change subject data
-   ```java
-   station.setTemperature(25.5f);
-   station.setHumidity(65);
-   ```
+    public DisplayDevice(String name) {
+        this.name = name;
+    }
 
-4. **Automatic Notification**: All observers receive updates automatically
-   ```java
-   // Both displays update without explicit calls
-   ```
+    @Override
+    public void update(float temperature, float humidity) {
+        System.out.println(name + " received Update: Temperature = " + 
+                          Math.round(temperature) + "°C || Humidity = " + 
+                          Math.round(humidity) + "%");
+    }
+}
+⚙️ Execution Flow
+Your demo includes a dynamic simulation with random weather updates:
 
-#### 📊 Class Diagram
+Create Subject and Observers
+java
+WeatherStation weatherStation = new WeatherStation();
 
-```
+Observer PhoneDisplay = new DisplayDevice("Phone Display");
+Observer TVDisplay = new DisplayDevice("TV Display");
+Observer WebDashboard = new DisplayDevice("Web Dashboard");
+Register Observers
+java
+weatherStation.addObserver(PhoneDisplay);
+weatherStation.addObserver(TVDisplay);
+weatherStation.addObserver(WebDashboard);
+Update Weather Data
+java
+weatherStation.setWeatherData(30.5f, 65.0f);
+// All three displays automatically receive updates
+Simulated Updates (Your unique feature!)
+java
+for (int i = 0; i < 3; i++) {
+    float newTemperature = 25 + (float) (Math.random() * 10);
+    float newHumidity = 35 + (float) (Math.random() * 10);
+    weatherStation.setWeatherData(newTemperature, newHumidity);
+    Thread.sleep(3000); // 3-second intervals
+}
+📊 Class Diagram
 ┌──────────────┐         ┌──────────────┐
-│   Subject    │←────────│   Observer   │
-│  «interface» │         │  «interface» │
-└──────┬───────┘         └──────△───────┘
-       △                        │
+│   Subject    │◇────────│   Observer   │
+│ «interface»  │         │ «interface»  │
+│              │         │              │
+│+ addObserver │         │+ update()    │
+│+ removeObsrvr│         └──────△───────┘
+│+ notifyObs() │                │
+└──────△───────┘                │ implements
        │                        │
-       │                        │ implements
-┌──────┴──────────┐    ┌────────┴────────┐
-│ WeatherStation  │    │ DisplayDevice   │
-│                 │    │                 │
-│ - temperature   │    │ - deviceName    │
-│ - humidity      │    │                 │
-│ + setTemp()     │    │ + update()      │
-│ + notifyObs()   │    └─────────────────┘
+       │ implements       ┌─────┴──────┐
+┌──────┴──────────┐      │            │
+│ WeatherStation  │      │DisplayDevice│
+│                 │      │             │
+│- observers: List│      │- name       │
+│- temperature    │      │             │
+│- humidity       │      └─────────────┘
+│                 │
+│+ setWeatherData()│
 └─────────────────┘
-```
-
-#### 💡 Use Cases
-
-- **Event Systems**: GUI event handling, publish-subscribe systems
-- **Model-View Architectures**: MVC, MVVM patterns
-- **Real-Time Updates**: Stock tickers, sports scores, news feeds
-- **Sensor Networks**: IoT devices, monitoring systems
-- **Social Media**: Notification systems, follower updates
-
-#### 🔧 Extension Ideas
-
-- Add **selective updates** (observers specify what data they want)
-- Implement **pull model** where observers fetch data on demand
-- Create **priority-based notifications** for critical observers
-- Add **asynchronous notifications** using threading
-- Implement **weak references** to prevent memory leaks
-- Create specialized observers: `SMSAlertObserver`, `EmailNotificationObserver`
-
----
-
-### Strategy Pattern
-
-#### 🎯 Intent
-
+💡 Features Implemented
+✅ Three display devices (Phone, TV, Web Dashboard)
+✅ Real-time weather data updates
+✅ Simulated updates with Thread.sleep() (unique feature!)
+✅ Temperature and humidity tracking
+✅ Rounded display values for better readability
+🔧 Extension Ideas
+Add selective updates (observers specify which data they want)
+Implement different observer types (EmailAlertObserver, SMSObserver)
+Add threshold-based alerts (notify only when temperature exceeds limit)
+Implement removeObserver demo in the main method
+Add pull-based updates where observers fetch data on demand
+Create weather forecast observer that analyzes trends
+Strategy Pattern
+🎯 Intent
 Define a family of algorithms, encapsulate each one, and make them interchangeable. Strategy lets the algorithm vary independently from clients that use it.
 
-#### Problem It Solves
+Problem It Solves
+Eliminates conditional statements for selecting algorithms
+Enables runtime algorithm selection
+Makes it easy to add new algorithms without modifying existing code
+🧩 Components in Your Implementation
+Component	Class	Responsibility
+Strategy Interface	PaymentStrategy	Declares pay method
+Concrete Strategies	CreditCardPayment, PayPalPayment, UPIPayment, CryptoPayment	Implement payment methods
+Context	ShoppingCart	Maintains strategy reference and delegates payment
+Product	Product	Helper class for cart items
+📝 Code Structure
+Strategy Interface:
 
-- Eliminates conditional statements for selecting algorithms
-- Enables runtime algorithm selection
-- Makes it easy to add new algorithms without modifying existing code
+java
+public interface PaymentStrategy {
+    void pay(int amount);
+}
+Concrete Strategies:
 
-#### 🧩 Components
+java
+class CreditCardPayment implements PaymentStrategy {
+    @Override
+    public void pay(int amount) {
+        System.out.println("Paid " + amount + " using Credit card");
+    }
+}
 
-| Component | Responsibility | Example |
-|-----------|---------------|---------|
-| **Strategy** | Common interface for all algorithms | `PaymentStrategy.java` |
-| **ConcreteStrategy** | Implements specific algorithm | `CreditCardPayment`, `PayPalPayment` |
-| **Context** | Maintains strategy reference and delegates | `ShoppingCart` |
+class PayPalPayment implements PaymentStrategy {
+    @Override
+    public void pay(int amount) {
+        System.out.println("Paid " + amount + " using Paypal");
+    }
+}
 
-#### ⚙️ Execution Flow
+class UPIPayment implements PaymentStrategy {
+    @Override
+    public void pay(int amount) {
+        System.out.println("Paid " + amount + " using UPI");
+    }
+}
 
-1. **Create Context**: Initialize the shopping cart
-   ```java
-   ShoppingCart cart = new ShoppingCart();
-   ```
+class CryptoPayment implements PaymentStrategy {
+    @Override
+    public void pay(int amount) {
+        System.out.println("Paid " + amount + " using CryptoPayment");
+    }
+}
+Product Class:
 
-2. **Add Items**: Populate the cart with products
-   ```java
-   cart.addItem(new Product("Laptop", 999.99));
-   cart.addItem(new Product("Mouse", 29.99));
-   ```
+java
+class Product {
+    private int price;
 
-3. **Select Strategy**: Choose payment method
-   ```java
-   PaymentStrategy paypal = new PayPalPayment("user@email.com");
-   cart.setPaymentStrategy(paypal);
-   ```
+    public Product(int price) {
+        this.price = price;
+    }
 
-4. **Execute**: Checkout delegates to the strategy
-   ```java
-   cart.checkout();  // Uses PayPal strategy
-   ```
+    public int getPrice() {
+        return price;
+    }
+}
+Context (ShoppingCart):
 
-5. **Switch Strategy**: Change payment method dynamically
-   ```java
-   cart.setPaymentStrategy(new CreditCardPayment("1234-5678"));
-   cart.checkout();  // Now uses credit card
-   ```
+java
+class ShoppingCart {
+    private List<Product> products;
+    private PaymentStrategy paymentStrategy;
 
-#### 📊 Class Diagram
+    public ShoppingCart() {
+        products = new ArrayList<>();
+    }
 
-```
+    public void addProduct(Product product) {
+        products.add(product);
+        System.out.println("Added item worth " + product.getPrice());
+    }
+
+    public int getTotatl() {
+        int total = 0;
+        for (Product product : products) {
+            total += product.getPrice();
+        }
+        return total;
+    }
+
+    public void setPaymentStrategy(PaymentStrategy paymentStrategy) {
+        this.paymentStrategy = paymentStrategy;
+    }
+
+    public void checkout() {
+        int total = getTotatl();
+        paymentStrategy.pay(total);
+    }
+}
+⚙️ Execution Flow
+Your implementation demonstrates strategy switching at runtime:
+
+Create Shopping Cart and Add Products
+java
+ShoppingCart shoppingCart = new ShoppingCart();
+shoppingCart.addProduct(new Product(40));
+shoppingCart.addProduct(new Product(60));
+int total = shoppingCart.getTotatl(); // 100
+Switch Between Payment Strategies
+java
+// Pay with Credit Card
+shoppingCart.setPaymentStrategy(new CreditCardPayment());
+shoppingCart.checkout(); // "Paid 100 using Credit card"
+
+// Switch to PayPal
+shoppingCart.setPaymentStrategy(new PayPalPayment());
+shoppingCart.checkout(); // "Paid 100 using Paypal"
+
+// Switch to UPI
+shoppingCart.setPaymentStrategy(new UPIPayment());
+shoppingCart.checkout(); // "Paid 100 using UPI"
+
+// Switch to Crypto
+shoppingCart.setPaymentStrategy(new CryptoPayment());
+shoppingCart.checkout(); // "Paid 100 using CryptoPayment"
+📊 Class Diagram
 ┌──────────────────┐
 │ PaymentStrategy  │
 │   «interface»    │
 │                  │
 │ + pay(amount)    │
 └────────△─────────┘
-         │
          │ implements
-    ┌────┴────┬─────────────┬──────────────┐
-    │         │             │              │
-┌───┴────┐ ┌──┴─────┐ ┌────┴─────┐ ┌──────┴──────┐
-│Credit  │ │PayPal  │ │  Crypto  │ │   Future    │
-│Card    │ │Payment │ │ Payment  │ │  Strategies │
-└────────┘ └────────┘ └──────────┘ └─────────────┘
+    ┌────┴────┬───────────┬──────────┬──────────┐
+    │         │           │          │          │
+┌───┴────┐ ┌──┴─────┐ ┌──┴────┐ ┌───┴─────┐ ┌──┴────┐
+│Credit  │ │PayPal  │ │  UPI  │ │ Crypto  │ │Future │
+│Card    │ │Payment │ │Payment│ │ Payment │ │ ...   │
+└────────┘ └────────┘ └───────┘ └─────────┘ └───────┘
                           △
                           │ uses
                    ┌──────┴──────┐
-                   │ ShoppingCart│
+                   │ShoppingCart │
                    │             │
-                   │ - strategy  │
-                   │ + checkout()│
-                   └─────────────┘
-```
+                   │- products   │
+                   │- strategy   │
+                   │+ checkout() │
+                   └─────┬───────┘
+                         │ contains
+                         ↓
+                   ┌─────────┐
+                   │ Product │
+                   │         │
+                   │- price  │
+                   └─────────┘
+💡 Features Implemented
+✅ Four payment strategies (Credit Card, PayPal, UPI, Crypto)
+✅ Dynamic strategy switching at runtime
+✅ Product management with pricing
+✅ Total calculation
+✅ Clean separation of payment logic
+🔧 Extension Ideas
+Add payment validation before processing
+Implement transaction details (card numbers, account IDs)
+Create discount strategies that can be combined
+Add payment confirmation and receipt generation
+Implement failed payment handling and retry logic
+Add more strategies: Apple Pay, Google Pay, Bank Transfer
+Create strategy factory for selecting payment method from user input
+Add logging for all transactions
+🚀 Getting Started
+Prerequisites
+Java Development Kit (JDK): Version 8 or higher
+IDE (Optional but recommended): IntelliJ IDEA, Eclipse, or VS Code
+Command Line: Terminal or Command Prompt
+Installation
+Clone or download the repository
+bash
+git clone https://github.com/T2T-Theory-to-Trade/T2T-Session-02-Assignment.git
+cd T2T-Session-02-Assignment
+Compile the project
+Navigate to the source directory and compile:
 
-#### 💡 Use Cases
+bash
+# Compile Command Pattern
+javac CommandPattern/*.java
 
-- **Payment Systems**: Multiple payment gateways
-- **Sorting Algorithms**: QuickSort, MergeSort, BubbleSort
-- **Compression**: ZIP, RAR, GZIP formats
-- **Routing**: Different navigation algorithms (fastest, shortest, scenic)
-- **Validation**: Different validation rules for forms
-- **Pricing**: Standard, discount, promotional pricing
+# Compile Observer Pattern
+javac ObserverPattern/*.java
 
-#### 🔧 Extension Ideas
+# Compile Strategy Pattern
+javac StrategyPattern/*.java
+Or compile all at once:
 
-- Add new payment providers: `BitcoinPayment`, `ApplePayPayment`
-- Implement **strategy selection from configuration** (properties/JSON)
-- Add **strategy validation** before execution
-- Create **composite strategies** (payment + loyalty points)
-- Implement **discount strategies** that can be chained
-- Add **logging decorators** for strategies
-- Create **fallback mechanisms** if primary strategy fails
+bash
+javac *Pattern/*.java
+Run the demos
+bash
+# Run Command Pattern Demo
+java CommandPattern.CommandDemo
 
----
+# Run Observer Pattern Demo
+java ObserverPattern.ObserverDemo
 
-## 🚀 Getting Started
-
-### Prerequisites
-
-- **Java Development Kit (JDK)**: Version 8 or higher
-- **IDE** (Optional but recommended): IntelliJ IDEA, Eclipse, or VS Code
-- **Build Tool** (Optional): Maven or Gradle
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/T2T-Theory-to-Trade/T2T-Session-02-Assignment.git
-   cd T2T-Session-02-Assignment
-   ```
-
-2. **Compile the project**
-   ```bash
-   # Using javac
-   javac -d bin src/**/*.java
-   
-   # Or using your IDE's build function
-   ```
-
-3. **Run individual patterns**
-   ```bash
-   # Command Pattern
-   java -cp bin CommandPattern.Main
-   
-   # Observer Pattern
-   java -cp bin ObserverPattern.Main
-   
-   # Strategy Pattern
-   java -cp bin StrategyPattern.Main
-   ```
-
-### Quick Start
-
-For each pattern, navigate to its Main class and run it:
-
-```java
-// CommandPattern/Main.java
-public class Main {
-    public static void main(String[] args) {
-        // Demo code for Command Pattern
-    }
-}
-```
-
----
-
-## 📁 Project Structure
-
-```
+# Run Strategy Pattern Demo
+java StrategyPattern.StratergyDemo
+📁 Project Structure
 T2T-Session-02-Assignment/
 │
-├── src/
-│   ├── CommandPattern/
-│   │   ├── Command.java                    # Command interface
-│   │   ├── LightOnCommand.java            # Concrete command
-│   │   ├── LightOffCommand.java
-│   │   ├── FanOnCommand.java
-│   │   ├── FanOffCommand.java
-│   │   ├── Light.java                      # Receiver
-│   │   ├── Fan.java                        # Receiver
-│   │   ├── RemoteControl.java              # Invoker
-│   │   └── Main.java                       # Demo application
-│   │
-│   ├── ObserverPattern/
-│   │   ├── Observer.java                   # Observer interface
-│   │   ├── Subject.java                    # Subject interface
-│   │   ├── WeatherStation.java             # Concrete subject
-│   │   ├── DisplayDevice.java              # Concrete observer
-│   │   └── Main.java                       # Demo application
-│   │
-│   └── StrategyPattern/
-│       ├── PaymentStrategy.java            # Strategy interface
-│       ├── CreditCardPayment.java          # Concrete strategy
-│       ├── PayPalPayment.java
-│       ├── CryptoPayment.java
-│       ├── ShoppingCart.java               # Context
-│       ├── Product.java                    # Helper class
-│       └── Main.java                       # Demo application
+├── CommandPattern/
+│   ├── Command.java               # Command interface (execute, undo)
+│   ├── ConcreteCommands.java      # LightOn/Off, FanOn/Off commands
+│   ├── Receiver.java              # Light and Fan receivers
+│   └── CommandDemo.java           # Main demo with RemoteControl
 │
-├── bin/                                     # Compiled classes
-├── docs/                                    # Additional documentation
-└── README.md                                # Project overview
-```
+├── ObserverPattern/
+│   ├── Observer.java              # Observer interface (update)
+│   ├── Subject.java               # Subject interface (add/remove/notify)
+│   ├── DisplayDevice.java         # Concrete observer implementation
+│   ├── WeatherStation.java        # Concrete subject with weather data
+│   └── ObserverDemo.java          # Main demo with 3 displays + simulation
+│
+└── StrategyPattern/
+    ├── PaymentStrategy.java       # Strategy interface (pay)
+    ├── ConcreteStratergies.java   # CreditCard, PayPal, UPI, Crypto
+    ├── ShoppingCart.java          # Context + Product class
+    └── StratergyDemo.java         # Main demo showing strategy switching
+💻 Code Implementation Details
+Command Pattern - CommandDemo Output
+Light Is ON!
+Fan Is ON!
+Light is OFF
+Fan is OFF
+Fan Is ON!
+Key Implementation Notes:
 
----
+Uses simple receivers with console output
+Invoker (RemoteControl) holds single command reference
+Undo immediately reverses last command
+All commands implement both execute() and undo()
+Observer Pattern - ObserverDemo Output
+WeatherStation: Temperature = 31°C  | Humidity: 65%
 
-## 💻 Usage Examples
+Phone Display received Update: Temperature = 31°C || Humidity = 65%
+TV Display received Update: Temperature = 31°C || Humidity = 65%
+Web Dashboard received Update: Temperature = 31°C || Humidity = 65%
 
-### Command Pattern Example
+[Simulated updates every 3 seconds with random values between 25-35°C]
 
-```java
-// Create receivers
-Light kitchenLight = new Light("Kitchen");
-Fan bedroomFan = new Fan("Bedroom");
+--------------------------------------
+Key Implementation Notes:
 
-// Create commands
-Command lightOn = new LightOnCommand(kitchenLight);
-Command lightOff = new LightOffCommand(kitchenLight);
-Command fanOn = new FanOnCommand(bedroomFan);
+Uses ArrayList to manage observer list
+Implements push model (subject pushes data to observers)
+Includes Thread.sleep() for realistic simulation
+Generates random weather data using Math.random()
+Rounds values for cleaner display using Math.round()
+Strategy Pattern - StratergyDemo Output
+Added item worth 40
+Added item worth 60
+Total: 100
+Paid 100 using Credit card
+Paid 100 using Paypal
+Paid 100 using UPI
+Paid 100 using CryptoPayment
+Key Implementation Notes:
 
-// Configure remote
-RemoteControl remote = new RemoteControl();
+Uses ArrayList for product management
+Calculates total dynamically in getTotatl() method
+Strategy reference can be changed multiple times
+Same cart, different payment methods
+Clean delegation pattern in checkout()
+🎮 Running the Application
+Option 1: Using IDE (IntelliJ IDEA / Eclipse)
+Import the project into your IDE
+Navigate to any demo class:
+CommandPattern.CommandDemo
+ObserverPattern.ObserverDemo
+StrategyPattern.StratergyDemo
+Right-click and select "Run"
+Option 2: Using Command Line
+bash
+# From project root directory
 
-// Turn on light
-remote.setCommand(lightOn);
-remote.pressButton();  // Output: Kitchen Light is ON
+# Command Pattern
+cd src
+javac CommandPattern/*.java
+java CommandPattern.CommandDemo
 
-// Turn off light
-remote.setCommand(lightOff);
-remote.pressButton();  // Output: Kitchen Light is OFF
+# Observer Pattern (includes 3-second delays)
+javac ObserverPattern/*.java
+java ObserverPattern.ObserverDemo
 
-// Undo last command
-remote.pressUndo();    // Output: Kitchen Light is ON
-```
+# Strategy Pattern
+javac StrategyPattern/*.java
+java StrategyPattern.StratergyDemo
+Option 3: Run All Demos
+Create a batch script to run all demos sequentially:
 
-### Observer Pattern Example
+Windows (run_all.bat):
 
-```java
-// Create weather station
-WeatherStation station = new WeatherStation();
+batch
+@echo off
+echo Running Command Pattern Demo...
+java CommandPattern.CommandDemo
+echo.
+echo Running Observer Pattern Demo...
+java ObserverPattern.ObserverDemo
+echo.
+echo Running Strategy Pattern Demo...
+java StrategyPattern.StratergyDemo
+Linux/Mac (run_all.sh):
 
-// Create observers
-DisplayDevice mobileApp = new DisplayDevice("Mobile App");
-DisplayDevice webDashboard = new DisplayDevice("Web Dashboard");
-DisplayDevice ledScreen = new DisplayDevice("LED Screen");
+bash
+#!/bin/bash
+echo "Running Command Pattern Demo..."
+java CommandPattern.CommandDemo
+echo ""
+echo "Running Observer Pattern Demo..."
+java ObserverPattern.ObserverDemo
+echo ""
+echo "Running Strategy Pattern Demo..."
+java StrategyPattern.StratergyDemo
+🔧 Extension Guidelines
+Adding a New Command
+Step 1: Create a new receiver in Receiver.java:
 
-// Register observers
-station.addObserver(mobileApp);
-station.addObserver(webDashboard);
-station.addObserver(ledScreen);
-
-// Update weather data
-station.setTemperature(28.5f);
-// All three displays automatically update
-
-station.setHumidity(70);
-// All displays show new humidity
-
-// Remove one observer
-station.removeObserver(ledScreen);
-station.setTemperature(30.0f);
-// Only mobile and web update
-```
-
-### Strategy Pattern Example
-
-```java
-// Create shopping cart
-ShoppingCart cart = new ShoppingCart();
-
-// Add products
-cart.addItem(new Product("Laptop", 1299.99));
-cart.addItem(new Product("Mouse", 49.99));
-cart.addItem(new Product("Keyboard", 89.99));
-
-// Pay with credit card
-PaymentStrategy creditCard = new CreditCardPayment(
-    "1234-5678-9012-3456",
-    "John Doe",
-    "123",
-    "12/25"
-);
-cart.setPaymentStrategy(creditCard);
-cart.checkout();
-
-// Switch to PayPal
-PaymentStrategy paypal = new PayPalPayment(
-    "john.doe@email.com",
-    "securePassword123"
-);
-cart.setPaymentStrategy(paypal);
-cart.checkout();
-
-// Switch to cryptocurrency
-PaymentStrategy crypto = new CryptoPayment(
-    "1A2B3C4D5E6F7G8H9I0J",
-    "Bitcoin"
-);
-cart.setPaymentStrategy(crypto);
-cart.checkout();
-```
-
----
-
-## 🔧 Extension Guidelines
-
-### Adding New Commands
-
-To add a new device and commands:
-
-1. Create a receiver class:
-```java
-public class AirConditioner {
-    private String location;
-    private int temperature;
-    
-    public AirConditioner(String location) {
-        this.location = location;
-        this.temperature = 24;
+java
+class AirConditioner {
+    void turnOn() {
+        System.out.println("AC Is ON!");
     }
-    
-    public void turnOn() {
-        System.out.println(location + " AC is ON at " + temperature + "°C");
+    void turnOff() {
+        System.out.println("AC is OFF");
     }
-    
-    public void turnOff() {
-        System.out.println(location + " AC is OFF");
-    }
-    
-    public void setTemperature(int temp) {
-        this.temperature = temp;
-        System.out.println(location + " AC set to " + temp + "°C");
+    void setTemperature(int temp) {
+        System.out.println("AC temperature set to " + temp);
     }
 }
-```
+Step 2: Create commands in ConcreteCommands.java:
 
-2. Create concrete commands:
-```java
-public class ACOnCommand implements Command {
+java
+class ACOnCommand implements Command {
     private AirConditioner ac;
     
     public ACOnCommand(AirConditioner ac) {
@@ -594,14 +676,18 @@ public class ACOnCommand implements Command {
         ac.turnOff();
     }
 }
-```
+Step 3: Use in CommandDemo.java:
 
-### Adding New Observers
+java
+AirConditioner roomAC = new AirConditioner();
+Command acOn = new ACOnCommand(roomAC);
+remote.setCommand(acOn);
+remote.pressButton();
+Adding a New Observer Type
+Step 1: Create new observer in a new file or DisplayDevice.java:
 
-To add a new observer type:
-
-```java
-public class EmailAlertObserver implements Observer {
+java
+class EmailAlertObserver implements Observer {
     private String emailAddress;
     
     public EmailAlertObserver(String email) {
@@ -610,172 +696,137 @@ public class EmailAlertObserver implements Observer {
     
     @Override
     public void update(float temperature, float humidity) {
-        if (temperature > 35 || humidity > 80) {
-            sendEmail("Weather Alert: Extreme conditions detected!");
+        if (temperature > 35) {
+            System.out.println("ALERT sent to " + emailAddress + 
+                             ": High temperature detected!");
         }
     }
-    
-    private void sendEmail(String message) {
-        System.out.println("Sending email to " + emailAddress + ": " + message);
-    }
 }
-```
+Step 2: Register in ObserverDemo.java:
 
-### Adding New Strategies
+java
+Observer emailAlert = new EmailAlertObserver("user@email.com");
+weatherStation.addObserver(emailAlert);
+Adding a New Payment Strategy
+Step 1: Add to ConcreteStratergies.java:
 
-To add a new payment method:
-
-```java
-public class ApplePayPayment implements PaymentStrategy {
-    private String deviceId;
-    private String appleId;
-    
-    public ApplePayPayment(String deviceId, String appleId) {
-        this.deviceId = deviceId;
-        this.appleId = appleId;
-    }
-    
+java
+class GooglePayPayment implements PaymentStrategy {
     @Override
-    public void pay(double amount) {
-        System.out.println("Processing Apple Pay payment of $" + amount);
-        System.out.println("Device: " + deviceId);
-        System.out.println("Apple ID: " + appleId);
-        // Payment processing logic
-        System.out.println("Payment successful via Apple Pay!");
+    public void pay(int amount) {
+        System.out.println("Paid " + amount + " using Google Pay");
     }
 }
-```
 
----
-
-## 📚 Best Practices
-
-### General Guidelines
-
-1. **Favor Composition Over Inheritance**: Use interfaces and delegation rather than deep inheritance hierarchies
-
-2. **Program to Interfaces**: Depend on abstractions, not concrete implementations
-
-3. **Keep It Simple**: Don't over-engineer. Add patterns only when they solve real problems
-
-4. **Single Responsibility**: Each class should have one reason to change
-
-5. **Open/Closed**: Open for extension, closed for modification
-
-### Pattern-Specific Tips
-
-#### Command Pattern
-- Keep commands lightweight and focused
-- Store state for undo in the command, not the receiver
-- Consider using a command queue for asynchronous execution
-- Implement proper error handling in execute() and undo()
-
-#### Observer Pattern
-- Avoid memory leaks by properly removing observers
-- Consider using weak references for observer lists
-- Be cautious of update cycles (observer updating subject)
-- Keep update() methods efficient as they're called frequently
-
-#### Strategy Pattern
-- Validate strategy before execution
-- Provide sensible default strategies
-- Consider strategy factories for complex creation logic
-- Keep strategies stateless when possible
-
-### Code Quality
-
-- **Documentation**: Add Javadoc comments for all public APIs
-- **Testing**: Write unit tests for each pattern component
-- **Naming**: Use descriptive names that reflect intent
-- **Error Handling**: Handle edge cases and invalid states gracefully
-
----
-
-## 🧪 Testing Recommendations
-
-### Unit Testing Structure
-
-```java
-// Example test for Command Pattern
-public class LightOnCommandTest {
-    private Light light;
-    private LightOnCommand command;
-    
-    @Before
-    public void setUp() {
-        light = new Light("Test Room");
-        command = new LightOnCommand(light);
-    }
-    
-    @Test
-    public void testExecute() {
-        command.execute();
-        assertTrue(light.isOn());
-    }
-    
-    @Test
-    public void testUndo() {
-        command.execute();
-        command.undo();
-        assertFalse(light.isOn());
+class ApplePayPayment implements PaymentStrategy {
+    @Override
+    public void pay(int amount) {
+        System.out.println("Paid " + amount + " using Apple Pay");
     }
 }
-```
+Step 2: Use in StratergyDemo.java:
 
-### Integration Testing
+java
+shoppingCart.setPaymentStrategy(new GooglePayPayment());
+shoppingCart.checkout();
+📚 Best Practices Demonstrated
+Command Pattern Best Practices
+✅ Interface Segregation: Simple Command interface with only necessary methods
+✅ Encapsulation: Commands encapsulate all information needed for execution
+✅ Reversibility: Every command implements undo
+✅ Single Responsibility: Each command class does one thing
 
-Test pattern interactions:
-- Command pattern with multiple commands in sequence
-- Observer pattern with multiple observers and state changes
-- Strategy pattern with runtime strategy switching
+Observer Pattern Best Practices
+✅ List-based Management: Uses ArrayList for flexible observer management
+✅ Push Model: Subject actively pushes data to observers
+✅ Decoupling: Observers don't know about each other
+✅ Realistic Simulation: Thread.sleep() for real-time demonstration
 
----
+Strategy Pattern Best Practices
+✅ Runtime Flexibility: Strategy can be changed multiple times
+✅ Clean Delegation: Context delegates to strategy without knowing details
+✅ Easy Extension: New payment methods require only implementing the interface
+✅ No Conditionals: No if/else chains for selecting algorithms
 
-## 🤝 Contributing
+🧪 Testing Recommendations
+Manual Testing Checklist
+Command Pattern:
 
-To contribute to this project:
+ Execute each command and verify output
+ Test undo after each command
+ Try multiple commands in sequence
+ Verify undo reverts to correct state
+Observer Pattern:
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/NewPattern`)
-3. Follow the existing code style and patterns
-4. Add tests for new functionality
-5. Update documentation
-6. Submit a pull request
+ Verify all observers receive updates
+ Check rounded values display correctly
+ Observe 3-second delays in simulation
+ Test with different numbers of observers
+Strategy Pattern:
 
----
+ Add products and verify total calculation
+ Try each payment strategy
+ Verify strategy switching works
+ Test with different product combinations
+Suggested Unit Tests
+java
+// Command Pattern Test
+@Test
+public void testLightOnCommand() {
+    Light light = new Light();
+    Command cmd = new LightOnCommand(light);
+    cmd.execute();
+    // Verify light is on
+}
 
-## 📖 Learning Resources
+// Observer Pattern Test
+@Test
+public void testWeatherStationNotification() {
+    WeatherStation station = new WeatherStation();
+    DisplayDevice display = new DisplayDevice("Test");
+    station.addObserver(display);
+    station.setWeatherData(25.0f, 50.0f);
+    // Verify display received update
+}
 
-### Books
-- "Design Patterns: Elements of Reusable Object-Oriented Software" - Gang of Four
-- "Head First Design Patterns" - Freeman & Freeman
-- "Effective Java" - Joshua Bloch
+// Strategy Pattern Test
+@Test
+public void testPaymentStrategySwitch() {
+    ShoppingCart cart = new ShoppingCart();
+    cart.addProduct(new Product(100));
+    cart.setPaymentStrategy(new CreditCardPayment());
+    cart.checkout();
+    // Verify payment processed
+}
+📖 Learning Outcomes
+After studying this project, you will understand:
 
-### Online Resources
-- [Refactoring.Guru - Design Patterns](https://refactoring.guru/design-patterns)
-- [SourceMaking - Design Patterns](https://sourcemaking.com/design_patterns)
+When to use each pattern
+Command: When you need undo/redo or request queuing
+Observer: When you need one-to-many communication
+Strategy: When you need interchangeable algorithms
+How patterns promote SOLID principles
+Open/Closed: Easy to add new behaviors without modification
+Dependency Inversion: Depend on abstractions (interfaces)
+Single Responsibility: Each class has one clear purpose
+Real-world applications
+Home automation (Command)
+Event-driven systems (Observer)
+Payment processing (Strategy)
+🤝 Contributing
+Suggestions for improvements:
 
----
-
-## 📄 License
-
-This project is part of the T2T (Theory to Trade) educational program by TRACE.
-
----
-
-## 👥 Authors
-
-**T2T - Theory to Trade Program**  
-Session 02 Assignment - Behavioral Design Patterns
-
----
-
-## 🙏 Acknowledgments
-
-- Gang of Four for defining design patterns
-- TRACE organization for the T2T program
-- All contributors and learners in the program
-
----
-
-**Happy Coding! 🚀**
+Command Pattern Enhancements
+Add command history with multi-level undo/redo
+Implement MacroCommand for composite operations
+Add parameterized commands (e.g., SetTemperatureCommand)
+Observer Pattern Enhancements
+Add observer priorities
+Implement pull model option
+Add async notifications using threads
+Create specialized observers (SMS, Email, Push notifications)
+Strategy Pattern Enhancements
+Add transaction IDs and receipts
+Implement payment validation
+Add discount strategies
+Create strategy factory pattern
